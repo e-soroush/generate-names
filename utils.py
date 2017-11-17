@@ -37,7 +37,7 @@ def makeTargetVariable(words, max_length=20):
             word = word[:max_length-1]
         for li in range(1, len(word)):
             letter = word[li]
-            letter_indexes[li][i] = english_letters.find(letter)
+            letter_indexes[li-1][i] = english_letters.find(letter)
     return torch.autograd.Variable(letter_indexes)
 
 
@@ -54,3 +54,24 @@ def shuffle_data(X, y=None):
         y = y[s]
         y = y.tolist()
     return X, y
+
+def char_tensor(char):
+    tensor = torch.LongTensor([english_letters.find(char)])
+    return torch.autograd.Variable(tensor)
+
+def save_checkpoint(model, filename, is_best=False):
+    torch.save(model, filename)
+    if is_best:
+        torch.save(model, 'best_'+filename)
+
+def create_train_state(model, epoch, optimizer, best_precision=0.0):
+    return {'epoch': epoch+1, 
+            'state_dict':model.state_dict(),
+            'best_precision':best_precision,
+            'optimizer':optimizer.state_dict()}
+
+def load_checkpoint(model_filename, model, optimizer):
+    structure = torch.load(model_filename)
+    model.load_state_dict(structure['state_dict'])
+    optimizer.load_state_dict(structure['optimizer'])
+    return model, optimizer, structure['epoch'], structure['best_precision']

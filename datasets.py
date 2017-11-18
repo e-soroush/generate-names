@@ -7,19 +7,19 @@ def startup_names():
     names=[]
     for i, item in dataset.iterrows():
         if isinstance(item['name'], str):
-            name = unicodeToAscii(item['name'].decode('utf8'))
+            name = unicodeToAscii(item['name'])
             if len(name) > 0:
                 names += [name]
     return names
 
-def yield_dataset(X, y=None, batchsize=32, shuffle=True):
+def yield_dataset(X, y=None, batch_size=32, shuffle=True):
     if y is not None:
         assert(len(X) == len(y))
     if shuffle:
         X, y = shuffle_data(X, y)
     # Only complete batches are submitted
-    for i in range(len(X)//batchsize):
+    for i in range(len(X)//batch_size):
         if y is not None:
-            yield X[i*batchsize:(i+1)*batchsize], y[i*batchsize:(i+1)*batchsize]
+            yield X[i*batch_size:(i+1)*batch_size], y[i*batch_size:(i+1)*batch_size]
         else:
-            yield X[i*batchsize:(i+1)*batchsize]
+            yield X[i*batch_size:(i+1)*batch_size]

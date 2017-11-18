@@ -70,8 +70,10 @@ def create_train_state(model, epoch, optimizer, best_precision=0.0):
             'best_precision':best_precision,
             'optimizer':optimizer.state_dict()}
 
-def load_checkpoint(model_filename, model, optimizer):
+def load_checkpoint(model_filename, model, optimizer=None):
     structure = torch.load(model_filename)
     model.load_state_dict(structure['state_dict'])
-    optimizer.load_state_dict(structure['optimizer'])
-    return model, optimizer, structure['epoch'], structure['best_precision']
+    if optimizer:
+        optimizer.load_state_dict(structure['optimizer'])
+        return model, optimizer, structure['epoch'], structure['best_precision']
+    return model

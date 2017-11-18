@@ -12,6 +12,7 @@ class RnnGenerative(nn.Module):
         self.out = nn.Linear(hidden_size, input_size)
         self.softmax = nn.LogSoftmax()
         self.hidden = self.init_hidden()
+        
     def init_hidden(self, batch_size=32):
         return torch.autograd.Variable(torch.randn(self.layer_num, batch_size, self.hidden_size))
     def forward(self, x_input):

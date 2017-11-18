@@ -13,17 +13,16 @@ embedding_dim = 100
 hidden_size = 150
 batch_size = 512
 use_gpu = torch.cuda.is_available()
-generative = RnnGenerative(n_length, embedding_dim, hidden_size)
-generative.hidden = generative.init_hidden(batch_size)
+generative = RnnGenerative(n_length, embedding_dim, hidden_size, unit='lstm', layer_num=2)
+generative.init_hidden(batch_size, use_gpu)
 if use_gpu:
-    with torch.cuda.device(0):
-        generative.cuda()
-        generative.hidden = generative.hidden.cuda()
+    generative.cuda()
+            
 
 criterion = nn.NLLLoss()
-optimizer = optim.Adam(generative.parameters(), lr=1e-3)
-num_epochs = 30
-model_filename = 'names.model'
+optimizer = optim.Adam(generative.parameters(), lr=5e-3)
+num_epochs = 60
+model_filename = 'names-lstm-layer-2.model'
 names = startup_names()
 generative.train()
 if os.path.exists(model_filename):
@@ -37,15 +36,14 @@ try:
         for data in iterators:
             input_words = word2Variable(data)
             target_words = makeTargetVariable(data)
+            generative.init_hidden(batch_size, use_gpu)
             if use_gpu:
-                with torch.cuda.device(0):
-                    input_words = input_words.cuda()
-                    target_words = target_words.cuda()
+                input_words = input_words.cuda()
+                target_words = target_words.cuda()
             generative.zero_grad()
             loss = 0
             for i in range(20):
                 output = generative(input_words[i])
-                # print('output: {} input: {} target: {}'.format(output.data.max(dim=1)[1].numpy(), input_words[i].data.numpy(), target_words[i].data.numpy()))
                 loss += criterion(output, target_words[i])
             loss.backward(retain_graph=True)
             optimizer.step()

@@ -4,7 +4,7 @@ import torch
 from torch import nn
 from torch.autograd import Variable
 from torch import optim
-from datasets import startup_names, yield_dataset
+from datasets import startup_names, yield_dataset, people_names
 from tqdm import tqdm
 import os
 
@@ -22,8 +22,8 @@ if use_gpu:
 criterion = nn.NLLLoss()
 optimizer = optim.Adam(generative.parameters(), lr=5e-3)
 num_epochs = 60
-model_filename = 'names-lstm-layer-2.model'
-names = startup_names()
+model_filename = 'people-lstm-layer-2.model'
+names = people_names()
 generative.train()
 if os.path.exists(model_filename):
     generative,optimizer,starting_epoch,_ = load_checkpoint(model_filename, generative, optimizer)

@@ -1,17 +1,31 @@
-import pandas as pd
-from utils import unicodeToAscii, shuffle_data
-import glob2
+from torch.utils.data import Dataset
+import torch
+from utils import tokenize_words
+from torch.autograd import Variable
+import pickle
+import os
 
-def startup_names():
-    dataset = pd.read_csv('/home/esoroush/Datasets/startups.csv')
-    dataset = dataset.dropna(how='any')
-    names=[]
-    for i, item in dataset.iterrows():
-        if isinstance(item['name'], str):
-            name = unicodeToAscii(item['name'])
-            if len(name) > 0:
-                names += [name]
-    return names
+class PeopleNames(Dataset):
+    def __init__(self, name_list, chached=True):
+        super(PeopleNames,self).__init__()
+        cache_path='.peopleNames.p'
+        if chached and os.path.exists(cache_path):
+            with open(cache_path, 'rb') as fh:
+                self.tokenized=pickle.load(fh)
+        else:
+            self.tokenized=(torch.from_numpy(tokenize_words(name_list))).long()
+            with open(cache_path, 'wb') as fh:
+                pickle.dump(self.tokenized,fh)
+    
+
+    def __getitem__(self, index):
+        word=self.tokenized[index]
+        target=word[1:]
+        word=word[:-1]
+        return word,target
+    def __len__(self):
+        return len(self.tokenized)
+
 
 def yield_dataset(X, y=None, batch_size=32, shuffle=True):
     if y is not None:
@@ -25,11 +39,3 @@ def yield_dataset(X, y=None, batch_size=32, shuffle=True):
         else:
             yield X[i*batch_size:(i+1)*batch_size]
     
-def people_names():
-    filenames = glob2.glob('/home/esoroush/Datasets/names/*.txt')
-    names = []
-    for filename in filenames:
-        with open(filename, 'r') as fhandler:
-            for name in fhandler:
-                names += [name.strip().split(',')[0]]
-    return names

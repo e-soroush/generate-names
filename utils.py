@@ -6,12 +6,13 @@ import pandas as pd
 import glob2
 import numpy as np
 
-english_letters = string.printable
+english_letters = string.ascii_letters[:26]
 # add start end and padding tokens
 START_TOKEN='<s>'
 END_TOKEN='<e>'
 PADDING_TOKEN='<p>'
-char2idx=[PADDING_TOKEN,START_TOKEN,END_TOKEN]+list(english_letters)
+UNKOWN_TOKEN='<unk>'
+char2idx=[PADDING_TOKEN,UNKOWN_TOKEN,START_TOKEN,END_TOKEN,' ']+list(english_letters)
 
 def tokenize_words(word):
     """
@@ -22,8 +23,11 @@ def tokenize_words(word):
     max_word_len=len(max(word,key=lambda f:len(f)))+2
     tokenized=np.zeros((len(word),max_word_len),np.int32)
     for i,w in enumerate(word):
-        for j,c in enumerate(w):
-            tokenized[i,j+1]=char2idx.index(c)
+        for j,c in enumerate(w.lower()):
+            try:
+                tokenized[i,j+1]=char2idx.index(c)
+            except:
+                tokenized[i,j+1]=char2idx.index(UNKOWN_TOKEN)
         tokenized[i,0]=char2idx.index(START_TOKEN)
         tokenized[i,j+2]=char2idx.index(END_TOKEN)
     return tokenized

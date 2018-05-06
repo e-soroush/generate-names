@@ -8,23 +8,29 @@ from datasets import PeopleNames
 from tqdm import tqdm
 import os
 from torch.utils.data.dataloader import DataLoader
+from generate import generate_name
+import numpy as np
 
 nb_chars = len(char2idx)
-embedding_dim = 128
+print('nb_chars %d'%nb_chars)
+embedding_dim = 50
 hidden_size = 150
-batch_size = 1024
+batch_size = 32
 use_gpu = torch.cuda.is_available()
-generative = RnnGenerative(nb_chars, embedding_dim, hidden_size, unit='lstm', layer_num=2)
+generative = RnnGenerative(nb_chars, embedding_dim, hidden_size, unit='lstm', layer_num=1,
+                            embedding_dropout=0, final_dropout=0.1, rnn_dropout=0)
 if use_gpu:
     generative.cuda()
 generative.init_hidden(batch_size)
 
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(generative.parameters(), lr=5e-3)
-num_epochs = 60
+num_epochs = 500
 model_filename = 'people-lstm-layer-2.model'
 names = people_names()
-train_data_loader=DataLoader(PeopleNames(names),batch_size=batch_size,shuffle=True)
+np.random.shuffle(names)
+names=names[:1024]
+train_data_loader=DataLoader(PeopleNames(names,chached=False),batch_size=batch_size,shuffle=True)
 starting_epoch = 1
 if os.path.exists(model_filename):
     generative,optimizer,starting_epoch,_ = load_checkpoint(model_filename, generative, optimizer)
@@ -52,5 +58,6 @@ try:
             pbar.set_description("Epoch {}/{} train loss: {}".format(epoch,num_epochs,loss.data[0]/word_max_len))
 
         save_checkpoint(create_train_state(generative, epoch, optimizer), model_filename)
+        generate_name(generative)
 except KeyboardInterrupt:
     save_checkpoint(create_train_state(generative, epoch-1, optimizer), model_filename)

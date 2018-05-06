@@ -16,9 +16,10 @@ class RnnGenerative(nn.Module):
         self.hidden_size = hidden_size
         self.unit = unit
         self.embedding = nn.Embedding(input_size, embedding_dim,padding_idx=0)
-        self.rnn=getattr(nn,unit)(embedding_dim, hidden_size, layer_num, batch_first=True)
+        self.embedding_dropout=nn.Dropout2d(embedding_dropout)
+        self.rnn=getattr(nn,unit)(embedding_dim, hidden_size, layer_num, batch_first=True, dropout=rnn_dropout)
         self.output_layer = nn.Linear(hidden_size, input_size)
-        self.softmax = nn.Softmax(dim=-1)
+        self.softmax = nn.LogSoftmax(dim=-1)
         self.final_dropout = nn.Dropout(final_dropout)
         self.init_hidden()
 
@@ -35,9 +36,13 @@ class RnnGenerative(nn.Module):
         # make sure input data is batch first
         # batch_size x word_length
         embedded = self.embedding(x_input)
+        embedded=self.embedding_dropout(embedded)
         out, self.hidden = self.rnn(embedded.unsqueeze(1), self.hidden)
         out = self.final_dropout(out)
-        out = self.softmax(self.output_layer(out)).squeeze()
+        out=self.output_layer(out)
+        if not self.training:
+            out = self.softmax(out)
+        out=out.squeeze()
         return out
 
 

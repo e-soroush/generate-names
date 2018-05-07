@@ -34,10 +34,10 @@ class RnnGenerative(nn.Module):
     
     def forward(self, x_input):
         # make sure input data is batch first
-        # batch_size x word_length
+        # batch_size x 1
         embedded = self.embedding(x_input)
         embedded=self.embedding_dropout(embedded)
-        out, self.hidden = self.rnn(embedded.unsqueeze(1), self.hidden)
+        out, self.hidden = self.rnn(embedded, self.hidden)
         out = self.final_dropout(out)
         out=self.output_layer(out)
         if not self.training:

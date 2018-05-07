@@ -24,13 +24,13 @@ if use_gpu:
 generative.init_hidden(batch_size)
 
 criterion = nn.CrossEntropyLoss()
-optimizer = optim.Adam(generative.parameters(), lr=5e-3)
+optimizer = optim.Adam(generative.parameters(), lr=1e-3)
 num_epochs = 500
-model_filename = 'people-lstm-layer-2.model'
+model_filename = 'weights.pth'
 names = people_names()
+np.random.seed(11)
 np.random.shuffle(names)
-names=names[:1024]
-train_data_loader=DataLoader(PeopleNames(names,chached=False),batch_size=batch_size,shuffle=True)
+train_data_loader=DataLoader(PeopleNames(names,chached=True),batch_size=batch_size,shuffle=True)
 starting_epoch = 1
 if os.path.exists(model_filename):
     generative,optimizer,starting_epoch,_ = load_checkpoint(model_filename, generative, optimizer)
@@ -51,9 +51,9 @@ try:
             generative.init_hidden(batch_size)
             loss=0
             for i in range(word_max_len):
-                output=generative(x[:,i])
+                output=generative(x[:,i].unsqueeze(1))
                 loss+=criterion(output,y[:,i])
-            loss.backward()
+            loss.backward(retain_graph=True)
             optimizer.step()
             pbar.set_description("Epoch {}/{} train loss: {}".format(epoch,num_epochs,loss.data[0]/word_max_len))
 

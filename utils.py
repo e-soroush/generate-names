@@ -60,7 +60,7 @@ def people_names(glob_pattern='/home/esoroush/Datasets/names/*.txt'):
     for filename in filenames:
         with open(filename, 'r') as fhandler:
             for name in fhandler:
-                names += [name.strip().split(',')[0]]
+                names += [name.strip().split(',')[0].lower()]
     return names
 
 # One-hot matrix of first to last letters (not including EOS) for input

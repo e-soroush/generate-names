@@ -54,7 +54,7 @@ def read_from_csv(path,name_field='name'):
     return names
 
 
-def people_names(glob_pattern='/home/esoroush/Datasets/names/*.txt'):
+def read_people_names(glob_pattern='/home/esoroush/Datasets/names/*.txt'):
     filenames = glob2.glob(glob_pattern)
     names = []
     for filename in filenames:
@@ -63,50 +63,10 @@ def people_names(glob_pattern='/home/esoroush/Datasets/names/*.txt'):
                 names += [name.strip().split(',')[0].lower()]
     return names
 
-# One-hot matrix of first to last letters (not including EOS) for input
-def word2Variable(words, max_length=20):
-    if not isinstance(words, list):
-        raise('You have to enter words in list format')
-    tensor = torch.zeros(max_length, len(words)).fill_(len(english_letters)).type(torch.LongTensor)
-    for i, word in enumerate(words):
-        if len(word) >= max_length:
-            word = word[:max_length-1]
-        for li in range(len(word)):
-            letter = word[li]
-            tensor[li][i] = english_letters.find(letter)
-    return torch.autograd.Variable(tensor)
-
-# LongTensor of second letter to end (EOS) for target
-def makeTargetVariable(words, max_length=20):
-    if not isinstance(words, list):
-        raise('You have to enter words in list format')
-    letter_indexes = torch.zeros(max_length, len(words)).fill_(len(english_letters)).type(torch.LongTensor)
-    for i, word in enumerate(words):
-        if len(word) >= max_length:
-            word = word[:max_length-1]
-        for li in range(1, len(word)):
-            letter = word[li]
-            letter_indexes[li-1][i] = english_letters.find(letter)
-    return torch.autograd.Variable(letter_indexes)
-
-
-def shuffle_data(X, y=None):
-    if isinstance(X, list):
-        X = np.array(X)
-    s = np.arange(len(X))
-    np.random.shuffle(s)
-    X = X[s]
-    X = X.tolist()
-    if y is not None:
-        if isinstance(y, list):
-            y = np.array(y)
-        y = y[s]
-        y = y.tolist()
-    return X, y
-
-def char_tensor(char):
-    tensor = torch.LongTensor([english_letters.find(char)])
-    return torch.autograd.Variable(tensor)
+def read_text_file(path):
+    with open(path) as fhandler:
+        names=[f.strip() for f in fhandler]
+    return names
 
 def save_checkpoint(model, filename, is_best=False):
     torch.save(model, filename)

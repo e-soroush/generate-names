@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 from torch.autograd import Variable
-from utils import *
 
 rnn_modules=['RNN','LSTM','GRU']
 class RnnGenerative(nn.Module):
@@ -24,7 +23,7 @@ class RnnGenerative(nn.Module):
         self.init_hidden()
 
     def init_hidden(self, batch_size=32):
-        # just to make sure it's on the same device with model
+        # just to make sure it's on the same device with the model
         weights=next(self.parameters())
         hidden_shape=(self.layer_num*(1+self.rnn.bidirectional), batch_size, self.hidden_size)
         if self.unit.lower() == 'lstm':

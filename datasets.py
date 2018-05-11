@@ -25,17 +25,3 @@ class PeopleNames(Dataset):
         return word,target
     def __len__(self):
         return len(self.tokenized)
-
-
-def yield_dataset(X, y=None, batch_size=32, shuffle=True):
-    if y is not None:
-        assert(len(X) == len(y))
-    if shuffle:
-        X, y = shuffle_data(X, y)
-    # Only complete batches are submitted
-    for i in range(len(X)//batch_size):
-        if y is not None:
-            yield X[i*batch_size:(i+1)*batch_size], y[i*batch_size:(i+1)*batch_size]
-        else:
-            yield X[i*batch_size:(i+1)*batch_size]
-    

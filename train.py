@@ -4,7 +4,7 @@ import torch
 from torch import nn
 from torch.autograd import Variable
 from torch import optim
-from datasets import PeopleNames
+from datasets import PeopleNames, RandomSampler
 from tqdm import tqdm
 import os
 from torch.utils.data.dataloader import DataLoader
@@ -57,6 +57,7 @@ if __name__=='__main__':
     parser.add_argument('--final_dropout', help="Final dropout", default=0.3)
     parser.add_argument('--rnn_dropout', help="Rnn dropout", default=0)
     parser.add_argument('--use_gpu', help="If use gpu, considering it's available", default=True)
+    parser.add_argument('--nb_samples_per_epoch', help="Number of randomly selected samples per epoch. Upsampling would be done if it was greater than actual data", default=2048)
     args=parser.parse_args()
 
     nb_chars = len(char2idx)
@@ -77,7 +78,7 @@ if __name__=='__main__':
     if not os.path.exists(args.name_path):
         raise FileNotFoundError("Cound not found %s"%args.name_path)
     names = read_text_file(args.name_path)
-    train_data_loader=DataLoader(PeopleNames(names,chached=True),batch_size=batch_size,shuffle=True)
+    train_data_loader=DataLoader(PeopleNames(names,chached=True),batch_size=batch_size,sampler=RandomSampler(len(names),args.nb_samples_per_epoch,shuffle=True))
     starting_epoch = 1
     if os.path.exists(model_filename):
         model,optimizer,starting_epoch,_ = load_checkpoint(model_filename, model, optimizer)

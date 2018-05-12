@@ -5,11 +5,9 @@ import os
 from torch.autograd import Variable
 from argparse import ArgumentParser
 
-def generate_name(model, names):
-    max_length = 17
+def generate_name(model, names,max_length,tempretature):
     model.init_hidden(1)
     model.eval()
-    tempretature = 0.9
     first_word = Variable(torch.LongTensor([char2idx.index(START_TOKEN)])).cuda()
     word=[]
     for i in range(max_length):
@@ -17,7 +15,6 @@ def generate_name(model, names):
         char_weights = output.squeeze().data.div(tempretature).exp().cpu()
         char_idx = torch.multinomial(char_weights[3:], 1)[0]
         if char_idx == 0:
-            print('end token!')
             break
         first_word=Variable(first_word.data.new([char_idx+3]))
         next_char = char2idx[char_idx+3]
@@ -42,6 +39,9 @@ if __name__=='__main__':
     parser.add_argument('--final_dropout', help="Final dropout", default=0.3)
     parser.add_argument('--rnn_dropout', help="Rnn dropout", default=0)
     parser.add_argument('--use_gpu', help="If use gpu, considering it's available", default=True)
+    parser.add_argument('--nb_generate', help="Number of words for name generation", default=5)
+    parser.add_argument('--word_maxlen', help="Maximum word length", default=17)
+    parser.add_argument('--tempretature', help="Amount of randomness for generating words", default=0.9)
     args=parser.parse_args()
 
     model_filename = args.model_train_path
@@ -59,4 +59,5 @@ if __name__=='__main__':
     model.init_hidden(1)
     if os.path.exists(model_filename):
         model= load_checkpoint(model_filename, model)
-    generate_name(model, names)
+    for _ in range(args.nb_generate):
+        generate_name(model, names,args.word_maxlen, args.tempretature)

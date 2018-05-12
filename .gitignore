@@ -2,3 +2,6 @@
 *.pyc
 *.model
 *.p
+*.tar
+*.zip
+namesbystate*

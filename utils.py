@@ -4,7 +4,6 @@ import torch
 import numpy as np
 import pandas as pd
 import glob2
-import numpy as np
 
 english_letters = string.ascii_letters[:26]
 # add start end and padding tokens

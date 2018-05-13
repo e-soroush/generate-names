@@ -5,7 +5,7 @@ import os
 from torch.autograd import Variable
 from argparse import ArgumentParser
 
-def generate_name(model, names,max_length,tempretature):
+def generate_name(model, names,max_length=17,tempretature=0.9):
     model.init_hidden(1)
     model.eval()
     first_word = Variable(torch.LongTensor([char2idx.index(START_TOKEN)])).cuda()

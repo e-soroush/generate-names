@@ -29,7 +29,6 @@ def generate_name(model, names,max_length=17,tempretature=0.9):
 if __name__=='__main__':
     parser=ArgumentParser()
     parser.add_argument('--name_path',help="Path of name dataset. It is assumed names are included in one text file in a single line", default="")
-    parser.add_argument('--nb_epochs', help="Number epochs for training", default=100)
     parser.add_argument('--model_train_path', help="Path of pytorch model for resume training or storing model", default="model.pth.tar")
     parser.add_argument('--embedding_dim', help="Size of embedding chars to a vector", default=50)
     parser.add_argument('--hidden_dim', help="Size of hidden dim for the used RNN network", default=50)

@@ -47,7 +47,7 @@ def read_from_csv(path,name_field='name'):
     names=[]
     for i, item in dataset.iterrows():
         if isinstance(item[name_field], str):
-            name = unicodeToAscii(item[name_field])
+            name = unicodeToAscii(item[name_field].lower())
             if len(name) > 0:
                 names += [name]
     return names
@@ -64,7 +64,7 @@ def read_people_names(glob_pattern='/home/esoroush/Datasets/names/*.txt'):
 
 def read_text_file(path):
     with open(path) as fhandler:
-        names=[f.strip() for f in fhandler]
+        names=[f.strip().lower() for f in fhandler]
     return names
 
 def save_checkpoint(model, filename, is_best=False):
